@@ -2,10 +2,10 @@ all: pwmprog set_color
 #	pwmprog
 #	led_util
 
-pwmprog:
+pwmprog: pwmprog.c pwm_common.h signal_utils.h signal_utils.c
 	gcc -Wall -pthread -o pwmprog pwmprog.c pwm_common.h signal_utils.h signal_utils.c -lpigpiod_if2 -lrt
 
-set_color:
+set_color: LED_util.c pwm_common.h
 	gcc -Wall -pthread -o set_color LED_util.c pwm_common.h -lpigpiod_if2 -lrt
 
 clean:
