@@ -9,6 +9,38 @@ const int GPIO_R = 24;
 const int GPIO_G = 23;
 const int GPIO_B = 25;
 
+struct _Color {
+		int R;
+		int G;
+		int B;
+};
+typedef struct _Color Color;
+
+Color CreateColor(const char* hexString)
+{
+		Color color;
+		if(hexString[0] == '#')
+				hexString++;
+		int rgb = strtol(hexString, NULL, 16);
+		color.B = rgb & 0xff;
+		rgb >>= 8;
+		color.G = rgb & 0xff;
+		rgb >>= 8;
+		color.R = rgb & 0xff;
+		return color;
+}
+
+void ColorToHex(Color color, char* hex)
+{
+		int rgb = color.R & 0xFF;
+		rgb <<= 8;
+		rgb += color.G & 0xFF;
+		rgb <<= 8;
+		rgb += color.B & 0xFF;
+		hex[0] = '#';
+		sprintf(hex + 1, "%x", rgb);
+}
+
 /*
  * Returns the device descriptor for the pi
  */
