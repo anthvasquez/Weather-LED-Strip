@@ -20,22 +20,6 @@ static void ParseHexString(char* str, int* r, int* g, int* b)
 		*g = rgb & 0xff;
 		rgb >>= 8;
 		*r = rgb & 0xff;
-		/*uint8_t rgb[3];
-		  char* buffer = calloc (3, sizeof(char));
-		  str += 1;
-
-		  int i = 0;
-		  for(i = 0; i < 3; i++)
-		  {
-		  strncpy(buffer, str, 2);
-		  rgb[i] = (uint8_t)strtol(buffer, NULL, 16);
-		  str += 2;
-		  }
-		  free(buffer);
-
-		 *r = rgb[0];
-		 *g = rgb[1];
-		 *b = rgb[2];*/
 }
 
 static int clamp(int in, int min, int max)
@@ -48,6 +32,11 @@ int main(int argc, char** argv)
 		int r, g, b;
 
 		int pi = pwm_init();
+		if(pi < 0)
+		{
+				printf("pwm_init() failed. Exiting...\n");
+				return EXIT_FAILURE;
+		}
 		
 		if(argc != 2 && argc != 4)
 		{

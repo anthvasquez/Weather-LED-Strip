@@ -10,10 +10,10 @@
 #include "cJSON/cJSON.h"
 
 int pi;
-const char* URL = "https://api.weather.gov/gridpoints/LWX/87,65/forecast?units=us";
-const int CURL_RESPONSE_MAX_LEN = 50000;
-const int MIN_TEMP = 40;
-const int MAX_TEMP = 110;
+const char* URL = "https://api.weather.gov/gridpoints/LWX/87,65/forecast/hourly?units=us";
+const int CURL_RESPONSE_MAX_LEN = 100000;
+const int MIN_TEMP = 50;
+const int MAX_TEMP = 90;
 const char* MIN_COLOR = "#0000FF";
 const char* MAX_COLOR = "#FF0000";
 
@@ -102,9 +102,15 @@ static int GetTemperatureF()
 				//cJSON_ArrayForEach(element, periods)
 				if(periods != NULL)
 				{
-						//just use the first forecast in the list for now
-						cJSON* temp = cJSON_GetObjectItemCaseSensitive(periods->child, "temperature");
-						temperature = temp->valueint;
+						//Get temperature for the next hourly period
+						cJSON* period = cJSON_GetArrayItem(periods, 1);
+						if(period != NULL)
+						{
+								cJSON* temp = cJSON_GetObjectItemCaseSensitive(period, "temperature");
+								temperature = temp->valueint;
+						}
+						else
+								printf("Forecast period was not found.\n");
 				}
 				else
 						printf("No forecast periods were found.\n");
@@ -115,6 +121,11 @@ static int GetTemperatureF()
 		cJSON_Delete(json);
 		free(forecast);
 		return temperature;
+}
+
+static void ColorTransition(Color startColor, Color endColor, double timeSeconds)
+{
+
 }
 
 static Color LerpColor(int minTemp, int maxTemp, Color minColor, Color maxColor, int value)
@@ -134,6 +145,11 @@ static Color LerpColor(int minTemp, int maxTemp, Color minColor, Color maxColor,
 int main(int argc, char** argv)
 {
 		pi = pwm_init();
+		if(pi < 0)
+		{
+				printf("Failed to initialize pwm module.  Exiting...\n");
+				return EXIT_FAILURE;
+		}
 
 		signal_sethandler(SIGINT, (sa_sigaction_t)CMainHandler);
 
@@ -151,13 +167,13 @@ int main(int argc, char** argv)
 		color.B >>= 1;
 		ColorToHex(color, hexString);
 
-		printf("Output:\nHex: %s\nRed:\t%d\nGreen:\t%d\nBlue:\t%d\n", hexString, color.R, color.G, color.B);
+		printf("Hex: %s\nRed:\t%d\nGreen:\t%d\nBlue:\t%d\n", hexString, color.R, color.G, color.B);
 		printf("-------------\n");
 
 		SetPWM(pi, color.R, color.G, color.B);
 
 		//Replace this with some logic to hold the light on until some event happens
-		time_sleep(10);
+		time_sleep(30);
 		printf("Setting output to LOW\n");
 		SetAllPWM(pi, 0);
 
