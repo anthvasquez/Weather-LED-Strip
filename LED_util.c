@@ -55,9 +55,10 @@ int main(int argc, char** argv)
 				b = atoi(argv[3]);
 		}
 
-		r = clamp(r, 0, 128);
-		g = clamp(g, 0, 128);
-		b = clamp(b, 0, 128);
+		printf("---Current limiting safety clamp removed - use with caution!---\n");
+		r = clamp(r, 0, 255);
+		g = clamp(g, 0, 255);
+		b = clamp(b, 0, 255);
 
 		printf("Setting\t\tR:%d\tG:%d\tB:%d\n", r, g, b);
 		if(SetPWM(pi, r, g, b))
